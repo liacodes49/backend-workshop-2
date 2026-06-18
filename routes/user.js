@@ -5,6 +5,7 @@ const userController = require("../controllers/user");
 
 const { createUserValidator } = require("../validators/user");
 const validateInput = require("../validators/validateInput");
+const verifyToken = require("../middlewares/auth");
 
 // Create User
 router.post(
@@ -23,6 +24,7 @@ router.post(
 // Get All Users
 router.get(
     "/all",
+    verifyToken,
     userController.getUsers
 );
 
@@ -35,6 +37,7 @@ router.get(
 // Update User
 router.put(
     "/update/:id",
+    verifyToken,
     userController.updateUser
 );
 
