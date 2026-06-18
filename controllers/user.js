@@ -1,126 +1,115 @@
-const user = require('../models/user');
-const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+const bcrypt = require("bcrypt");
 
+// Create User
 exports.createUser = async (req, res) => {
     try {
         const { name, email, password, mobileNumber, role } = req.body;
 
-        const alreadyUser = await user.findOne({ email, mobileNumber });
-
-        if (alreadyUser) {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
             return res.status(400).json({
-                message: "User already exists",
+                message: "User with this email already exists"
             });
         }
 
-        const hpass = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await user.create({
+        const newUser = await User.create({
             name,
             email,
-            password: hpass,
+            password: hashedPassword,
             mobileNumber,
-            role,
+            role
         });
 
-        return res.status(201).json({
-            message: "User created",
-            data: newUser,
+        res.status(201).json({
+            message: "User created successfully",
+            user: {
+                id: newUser._id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role
+            }
         });
-
-    } catch (err) {
-        console.error(err.message);
-
-        return res.status(500).json({
-            message: "Server error",
-        });
-    }
-};
-
-exports.getUsers = async (req, res) => {
-    try {
-        const users = await user.find();
-
-        return res.status(200).json({
-            message: "Users fetched successfully",
-            data: users,
-        });
-
-    } catch (err) {
-        console.error(err);
-
-        return res.status(500).json({
-            message: "Server error",
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error"
         });
     }
 };
 
-exports.getUserById = async (req, res) => {
+// Login
+exports.login = async (req, res) => {
     try {
-        const userData = await user.findById(req.params.id);
+        const { email, password } = req.body;
 
-        if (!userData) {
-            return res.status(404).json({
-                message: "User not found",
+        const existingUser = await User.findOne({ email });
+
+        if (!existingUser) {
+            return res.status(400).json({
+                message: "Invalid email or password"
             });
         }
 
-        return res.status(200).json({
-            message: "User fetched successfully",
-            data: userData,
-        });
-    } catch (err) {
-        return res.status(500).json({
-            message: "Server error",
-        });
-    }
-};
-
-
-exports.deleteUser = async (req, res) => {
-    try {
-        const deletedUser = await user.findByIdAndDelete(req.params.id);
-
-        if (!deletedUser) {
-            return res.status(404).json({
-                message: "User not found",
-            });
-        }
-
-        return res.status(200).json({
-            message: "User deleted successfully",
-        });
-    } catch (err) {
-        return res.status(500).json({
-            message: "Server error",
-        });
-    }
-};
-
-
-exports.updateUser = async (req, res) => {
-    try {
-        const updatedUser = await user.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
+        const isMatch = await bcrypt.compare(
+            password,
+            existingUser.password
         );
 
-        if (!updatedUser) {
-            return res.status(404).json({
-                message: "User not found",
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Invalid email or password"
             });
         }
 
-        return res.status(200).json({
-            message: "User updated successfully",
-            data: updatedUser,
+        const token = jwt.sign(
+            {
+                id: existingUser.id
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "1h"
+            }
+        );
+
+        res.status(200).json({
+            message: "Login successful",
+            token
         });
-    } catch (err) {
-        return res.status(500).json({
-            message: "Server error",
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error"
         });
     }
 };
 
+// Get All Users
+exports.getUsers = async (req, res) => {
+    res.json({
+        message: "Get All Users API"
+    });
+};
 
+// Get User By Id
+exports.getUserById = async (req, res) => {
+    res.json({
+        message: "Get User By ID API"
+    });
+};
+
+// Update User
+exports.updateUser = async (req, res) => {
+    res.json({
+        message: "Update User API"
+    });
+};
+
+// Delete User
+exports.deleteUser = async (req, res) => {
+    res.json({
+        message: "Delete User API"
+    });
+};

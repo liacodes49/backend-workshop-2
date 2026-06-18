@@ -1,12 +1,19 @@
-const express = require('express');
+const express = require("express");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+require("./config/db");
+
 const app = express();
-const db = require('./config/db');
-const userRoutes = require('./routes/user');
+
+const userRoutes = require("./routes/user");
 
 app.use(express.json());
 
-app.use('/user', userRoutes);
-app.get('/', (req, res) => {
+app.use("/user", userRoutes);
+
+app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
