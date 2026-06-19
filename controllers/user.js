@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const role = require("../models/role");
+
 
 exports.createUser = async (req, res) => {
     try {
@@ -22,6 +22,11 @@ exports.createUser = async (req, res) => {
             password: hashedPassword,
             mobileNumber,
             role: roleId
+        });
+
+        await newUser.populate({
+            path: 'role',
+            select: 'name description',
         });
 
         res.status(201).json({
@@ -115,10 +120,13 @@ exports.deleteUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().populate([{
-            path: 'roleId',
-            select: 'name',
-        }]);
+        const users = await User.find()
+            .select('-password')
+            .populate({
+                path: 'role',
+                select: 'name description',
+            });
+
         res.status(200).json({
             message: "Users fetched successfully",
             users,
