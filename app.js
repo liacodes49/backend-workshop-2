@@ -8,10 +8,12 @@ require("./config/db");
 const app = express();
 
 const userRoutes = require("./routes/user");
+const roleRoutes = require("./routes/role");
 
 app.use(express.json());
 
 app.use("/user", userRoutes);
+app.use("/role", roleRoutes);
 
 app.get("/", (req, res) => {
     res.send("Hello World");

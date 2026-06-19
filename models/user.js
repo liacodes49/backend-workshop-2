@@ -9,7 +9,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 1,
     },
-    role: String,
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'role',
+    },
 }, {
     timestamps: true,
     collection: 'users',

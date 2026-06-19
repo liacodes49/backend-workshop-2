@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+const role = require("../models/role");
 
-// Create User
 exports.createUser = async (req, res) => {
     try {
-        const { name, email, password, mobileNumber, role } = req.body;
+        const { name, email, password, mobileNumber, roleId } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -21,7 +21,7 @@ exports.createUser = async (req, res) => {
             email,
             password: hashedPassword,
             mobileNumber,
-            role
+            role: roleId
         });
 
         res.status(201).json({
@@ -40,7 +40,6 @@ exports.createUser = async (req, res) => {
     }
 };
 
-// Login
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -86,21 +85,21 @@ exports.login = async (req, res) => {
     }
 };
 
-// Get All Users
+
 exports.getUsers = async (req, res) => {
     res.json({
         message: "Get All Users API"
     });
 };
 
-// Get User By Id
+
 exports.getUserById = async (req, res) => {
     res.json({
         message: "Get User By ID API"
     });
 };
 
-// Update User
+
 exports.updateUser = async (req, res) => {
     res.json({
         message: "Update User API"
@@ -112,4 +111,22 @@ exports.deleteUser = async (req, res) => {
     res.json({
         message: "Delete User API"
     });
+};
+
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().populate([{
+            path: 'roleId',
+            select: 'name',
+        }]);
+        res.status(200).json({
+            message: "Users fetched successfully",
+            users,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error fetching users",
+            error: error.message,
+        });
+    }
 };

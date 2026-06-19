@@ -7,7 +7,7 @@ const { createUserValidator } = require("../validators/user");
 const validateInput = require("../validators/validateInput");
 const verifyToken = require("../middlewares/auth");
 
-// Create User
+
 router.post(
     "/create",
     createUserValidator,
@@ -15,33 +15,33 @@ router.post(
     userController.createUser
 );
 
-// Login
+
 router.post(
     "/login",
     userController.login
 );
 
-// Get All Users
+
 router.get(
     "/all",
     verifyToken,
-    userController.getUsers
+    userController.getAllUsers
 );
 
-// Get User By ID
+
 router.get(
     "/:id",
     userController.getUserById
 );
 
-// Update User
+
 router.put(
     "/update/:id",
     verifyToken,
     userController.updateUser
 );
 
-// Delete User
+
 router.delete(
     "/delete/:id",
     userController.deleteUser
