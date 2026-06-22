@@ -70,7 +70,8 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign(
             {
-                id: existingUser.id
+                id: existingUser.id,
+                version: existingUser.version
             },
             process.env.JWT_SECRET,
             {
@@ -89,7 +90,6 @@ exports.login = async (req, res) => {
         });
     }
 };
-
 
 exports.getUsers = async (req, res) => {
     res.json({
@@ -135,6 +135,26 @@ exports.getAllUsers = async (req, res) => {
         res.status(500).json({
             message: "Error fetching users",
             error: error.message,
+        });
+    }
+};
+
+exports.logout = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        user.version += 1;
+        await user.save();
+        res.status(200).json({
+            message: "Logout successful"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error"
         });
     }
 };

@@ -47,4 +47,9 @@ router.delete(
     userController.deleteUser
 );
 
+router.post(
+    "/logout",
+    verifyToken,
+    userController.logout
+);
 module.exports = router;
